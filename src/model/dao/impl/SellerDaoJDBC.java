@@ -46,22 +46,22 @@ public class SellerDaoJDBC implements SellerDao {
 			int rows = st.executeUpdate();
 			if (rows > 0) {
 				ResultSet rs = st.getGeneratedKeys();
-				if(rs.next()) {
 					int id = rs.getInt(1);
 					obj.setId(id);
+					
+					DB.closeResultSet(rs);
+				}
+				else {
+					throw new DbException("Erro");
 				}
 				
-				DB.closeResultSet(rs);
-			}
-			else {
-				throw new DbException("Erro");
-			}
-		}
+				
+		}		
 		catch(SQLException e) {
 			throw new DbException(e.getMessage());
 		}
 		finally {
-			DB.closeConnetion();
+			DB.closeStatement(st);
 		}
 	}
 
@@ -93,7 +93,20 @@ public class SellerDaoJDBC implements SellerDao {
 
 	@Override
 	public void deleteByld(Integer id) {
-		// TODO Auto-generated method stub
+		PreparedStatement st = null;
+		try {
+			st = conn.prepareStatement("DELETE FROM seller WHERE Id = ?");
+			
+			st.setInt(1, id);
+			
+			int rows = st.executeUpdate();
+			if(rows == 0) {
+				throw new DbException("ID não exite");
+			}
+		}
+		catch(SQLException e) {
+			e.printStackTrace();
+		}
 		
 	}
 
